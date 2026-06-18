@@ -15,7 +15,7 @@
 	/**
      * Instructions:
 	 * Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video.
-     * Will apply only to taht saved VOD, saved value will persist across multiple VODs until another explicit `set` is called.
+     * Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 	 */
 
 	let chatOffsetSeconds = 0;

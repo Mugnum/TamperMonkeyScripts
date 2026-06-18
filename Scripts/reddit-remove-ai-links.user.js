@@ -2,7 +2,7 @@
 // @name			Reddit: Remove AI links
 // @namespace		Mugnum.Scripts.Reddit
 // @version			1.0.0
-// @description		Removes bullshit AI links from comments and reverts them to plain text.
+// @description		Removes bullshit AI links from comments and reverts them to plain text
 // @match			https://www.reddit.com/*
 // @match			https://new.reddit.com/*
 // @match			https://sh.reddit.com/*

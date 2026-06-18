@@ -89,25 +89,20 @@
         );
     }
 
-	function isLikelyTwitchGqlUrl(input) {
-		const url =
-			typeof input === "string"
-				? input
-				: input instanceof Request
-					? input.url
-					: "";
+    function isLikelyTwitchGqlUrl(input) {
+        const url = typeof input === "string"
+			? input
+			: input instanceof Request
+				? input.url
+				: "";
 
 		return url.includes("gql.twitch.tv/gql") || url.endsWith("/gql");
 	}
 
-	function getRequestBodyText(input, init) {
-		if (typeof init?.body === "string") {
-			return init.body;
-		}
-
-		// Keeping this intentionally conservative.
-		// Reading Request bodies here can be fragile because they may be streams.
-		return null;
+    function getRequestBodyText(input, init) {
+        return typeof init?.body === "string"
+            ? init.body
+            : null;
 	}
 
 	function patchRequestBody(bodyText) {
@@ -180,12 +175,6 @@
 					typeof node.contentOffsetSeconds === "number"
 				) {
 					const original = node.contentOffsetSeconds;
-
-					/**
-					 * We fetched shifted messages in the request.
-					 * Now shift their timestamps back so Twitch's local scheduler
-					 * considers them due at the current playback time.
-					 */
 					const adjusted = Math.max(0, original + chatOffsetSeconds);
 
 					node.contentOffsetSeconds = adjusted;
@@ -229,8 +218,6 @@
 		}
 
 		const headers = new Headers(response.headers);
-
-		// Body length changes after JSON.stringify; avoid stale content-length.
 		headers.delete("content-length");
 
 		return new Response(JSON.stringify(data), {

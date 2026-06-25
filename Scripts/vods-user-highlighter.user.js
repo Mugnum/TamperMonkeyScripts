@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vods: User Highlighter
 // @namespace    Mugnum.Scripts.Vods
-// @version      1.1.0
+// @version      2.1.0
 // @description  Highlight specific users in chat (moon2.tv + chatreplay.stream)
 // @match        *://moon2.tv/youtube/*
 // @match        *://chatreplay.stream/chat/*

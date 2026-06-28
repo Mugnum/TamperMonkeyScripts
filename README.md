@@ -4,7 +4,7 @@ Provided as-is, none of them are going to be maintained.
 
 ### How to install
 - Install [TamperMonkey extension](https://www.tampermonkey.net/).
-- Make sure it can even load scripts (can be finicky in Chrome).
+- For chrome: enable developer mode, allow user scripts.
 - Open script's code and select "Raw".
 - TM will automatically suggest to install it.
 

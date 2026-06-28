@@ -19,7 +19,7 @@ Provided as-is, none of them are going to be maintained.
   Hides player controls on "H" shortcut.
 
 - [Twitch: VOD Chat Offset](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-vod-chat-offset.user.js)  
-  Adjust Twitch VOD chat replay offset.
+  Adjusts Twitch VOD chat replay offset.
   
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 
@@ -27,7 +27,7 @@ Provided as-is, none of them are going to be maintained.
   Scrolls video player to bottom of screen on cohhilition.com.
 
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  
-  Highlight specific users in chat on moon2.tv and chatreplay.stream.
+  Highlights specific users in chat on moon2.tv and chatreplay.stream.
 
 - [YouTube: Set high quality for embed](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-auto-quality-for-embed.user.js)  
   Makes youtube embedded videos at higher resolution.
@@ -36,4 +36,4 @@ Provided as-is, none of them are going to be maintained.
   Removes shortcuts for jumping to next chapter on YouTube.
 
 - [YouTube Studio: Restore Likes/Dislikes](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-studio-restore-likes-column.user.js)  
-  Restores a likes/dislikes column in YouTube Studio Content.
+  Restores the likes/dislikes column in YouTube Studio Content.

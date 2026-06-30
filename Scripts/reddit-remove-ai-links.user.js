@@ -1,8 +1,13 @@
 // ==UserScript==
 // @name			Reddit: Remove AI links
-// @namespace		Mugnum.Scripts.Reddit
-// @version			1.0.0
 // @description		Removes bullshit AI links from comments and reverts them to plain text
+// @version			1.1.0
+// @namespace		Mugnum.Scripts.Reddit
+// @author			Mugnum
+// @license			MIT License
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=reddit.com
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/reddit-remove-ai-links.user.js
+// @updateURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/reddit-remove-ai-links.user.js
 // @match			https://www.reddit.com/*
 // @match			https://new.reddit.com/*
 // @match			https://sh.reddit.com/*
@@ -19,11 +24,11 @@
 			return false;
 		}
 
-		const href = a.getAttribute('href') || '';
-		const looksLikeAnswerLink = href.includes('/answers/') &&
+		const href = a.getAttribute("href") || "";
+		const looksLikeAnswerLink = href.includes("/answers/") &&
 			(
-				href.includes('source=PDP_HIGHLIGHT') ||
-				href.includes('source%3DPDP_HIGHLIGHT')
+				href.includes("source=PDP_HIGHLIGHT") ||
+				href.includes("source%3DPDP_HIGHLIGHT")
 			);
 
 		if (!looksLikeAnswerLink) {
@@ -39,18 +44,19 @@
 
 	function getAnchorTextWithoutIcon(a) {
 		const clone = a.cloneNode(true);
-		clone.querySelectorAll('svg').forEach(svg => {
-			const wrapper = svg.closest('span');
+		clone.querySelectorAll("svg").forEach(svg => {
+			const wrapper = svg.closest("span");
 
-			if (wrapper && wrapper.textContent.trim() === '') {
+			if (wrapper && wrapper.textContent?.trim() === "") {
 				wrapper.remove();
-			} else {
-				svg.remove();
+				return;
 			}
+
+			svg.remove();
 		});
 
-		clone.querySelectorAll('span').forEach(span => {
-			if (span.textContent.trim() === '' && span.children.length === 0) {
+		clone.querySelectorAll("span").forEach(span => {
+			if (span.textContent?.trim() === "" && span.children.length === 0) {
 				span.remove();
 			}
 		});
@@ -117,9 +123,11 @@
 	let queued = false;
 
 	function queueClean() {
-		if (queued) return;
-		queued = true;
+		if (queued) {
+			return;
+		}
 
+		queued = true;
 		requestAnimationFrame(() => {
 			queued = false;
 			cleanRoot(document);

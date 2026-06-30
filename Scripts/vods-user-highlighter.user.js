@@ -1,11 +1,15 @@
 // ==UserScript==
-// @name         Vods: User Highlighter
-// @namespace    Mugnum.Scripts.Vods
-// @version      2.1.0
-// @description  Highlight specific users in chat (moon2.tv + chatreplay.stream)
-// @match        *://moon2.tv/youtube/*
-// @match        *://chatreplay.stream/chat/*
-// @grant        none
+// @name			Vods: User Highlighter
+// @namespace		Mugnum.Scripts.Vods
+// @version			2.2.0
+// @description		Highlight specific users in chat (moon2.tv + chatreplay.stream)
+// @author			Mugnum
+// @license			MIT License
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=chatreplay.stream
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/vods-user-highlighter.user.js
+// @match			*://moon2.tv/youtube/*
+// @match			*://chatreplay.stream/chat/*
+// @grant			none
 // ==/UserScript==
 
 (function () {

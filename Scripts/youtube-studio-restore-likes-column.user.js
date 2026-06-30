@@ -1,34 +1,46 @@
 // ==UserScript==
-// @name			YouTube Studio: Restore Likes/Dislikes
-// @namespace		Mugnum.Scripts.YouTube.StudioRestoreLikes
-// @version			1.0.0
+// @name			YouTube Studio: Restore Likes/Dislikes Column
 // @description		Restores a likes/dislikes column in YouTube Studio Content
+// @version			1.1.0
+// @namespace		Mugnum.Scripts.YouTube.StudioRestoreLikes
+// @author			Mugnum
+// @license			MIT License
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=youtube.com
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/youtube-studio-restore-likes-column.user.js
+// @updateURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/youtube-studio-restore-likes-column.user.js
 // @match			https://studio.youtube.com/*
 // @run-at			document-start
 // @grant			none
 // ==/UserScript==
 
 (() => {
-	'use strict';
+	"use strict";
 
 	let renderQueued = false;
-	const LIST_CREATOR_VIDEOS = '/youtubei/v1/creator/list_creator_videos';
-	const GET_CREATOR_VIDEOS = '/youtubei/v1/creator/get_creator_videos';
+	const LIST_CREATOR_VIDEOS = "/youtubei/v1/creator/list_creator_videos";
+	const GET_CREATOR_VIDEOS = "/youtubei/v1/creator/get_creator_videos";
 	const REQUEST_PRIVATE_METRICS = true;
-	const COLUMN_WIDTH = '164px';
-	const RATING_WIDTH = '124px';
+	const COLUMN_WIDTH = "164px";
+	const RATING_WIDTH = "124px";
 	const ratings = new Map();
 	const fullNumber = new Intl.NumberFormat();
 	const compactNumber = new Intl.NumberFormat(undefined, {
-		notation: 'compact',
-		maximumFractionDigits: 1,
+		notation: "compact",
+		maximumFractionDigits: 1
 	});
 
 	function toUrl(input) {
-		if (typeof input === 'string') return input;
-		if (input instanceof URL) return input.href;
-		if (input instanceof Request) return input.url;
-		return input?.url ?? '';
+		if (typeof input === "string") {
+			return input;
+		}
+		if (input instanceof URL) {
+			return input.href;
+		}
+		if (input instanceof Request) {
+			return input.url;
+		}
+
+		return input?.url ?? "";
 	}
 
 	function isListCreatorVideos(url) {
@@ -37,20 +49,19 @@
 
 	function isVideoResponseEndpoint(url) {
 		const value = String(url);
-
-		return (
-			value.includes(LIST_CREATOR_VIDEOS) ||
-			value.includes(GET_CREATOR_VIDEOS)
-		);
+		return (value.includes(LIST_CREATOR_VIDEOS) ||
+			value.includes(GET_CREATOR_VIDEOS));
 	}
 
 	function parseCount(value) {
 		const count = Number(value);
-		return Number.isFinite(count) && count >= 0 ? count : null;
+		return Number.isFinite(count) && count >= 0
+			? count
+			: null;
 	}
 
 	function patchListRequestBody(body) {
-		if (!REQUEST_PRIVATE_METRICS || typeof body !== 'string') {
+		if (!REQUEST_PRIVATE_METRICS || typeof body !== "string") {
 			return body;
 		}
 
@@ -62,7 +73,7 @@
 			return body;
 		}
 
-		if (!request?.mask || typeof request.mask !== 'object') {
+		if (!request?.mask || typeof request.mask !== "object") {
 			return body;
 		}
 
@@ -74,7 +85,7 @@
 	}
 
 	function extractRating(video) {
-		if (!video || typeof video.videoId !== 'string') {
+		if (!video || typeof video.videoId !== "string") {
 			return null;
 		}
 
@@ -87,7 +98,7 @@
 				videoId: video.videoId,
 				likes: privateLikes,
 				dislikes: privateDislikes,
-				source: 'private',
+				source: "private",
 			};
 		}
 
@@ -98,7 +109,7 @@
 				videoId: video.videoId,
 				likes: publicLikes,
 				dislikes: null,
-				source: 'public',
+				source: "public",
 			};
 		}
 
@@ -106,34 +117,38 @@
 	}
 
 	function mergeRating(next) {
-		const previous = ratings.get(next.videoId);
-
-		if (previous?.source === 'private' && next.source === 'public') {
+		if (!next) {
 			return false;
 		}
 
-		const changed = !previous ||
+		const previous = ratings.get(next.videoId);
+
+		if (previous?.source === "private" && next.source === "public") {
+			return false;
+		}
+
+		const isChanged = !previous ||
 			previous.likes !== next.likes ||
 			previous.dislikes !== next.dislikes ||
 			previous.source !== next.source;
 
-		if (changed) {
+		if (isChanged) {
 			ratings.set(next.videoId, next);
 		}
 
-		return changed;
+		return isChanged;
 	}
 
 	function ingestResponse(payload) {
-		if (!payload || typeof payload !== 'object') {
+		if (!payload || typeof payload !== "object") {
 			return;
 		}
 
-		let changed = false;
+		let isChanged = false;
 		const seen = new WeakSet();
 
 		function visit(value) {
-			if (!value || typeof value !== 'object' || seen.has(value)) {
+			if (!value || typeof value !== "object" || seen.has(value)) {
 				return;
 			}
 
@@ -141,7 +156,7 @@
 			const rating = extractRating(value);
 
 			if (rating && mergeRating(rating)) {
-				changed = true;
+				isChanged = true;
 			}
 
 			for (const child of Object.values(value)) {
@@ -151,7 +166,7 @@
 
 		visit(payload);
 
-		if (changed) {
+		if (isChanged) {
 			scheduleRender();
 		}
 	}
@@ -181,8 +196,8 @@
 			if (isListRequest &&
 				input instanceof Request &&
 				!init?.body &&
-				input.method !== 'GET' &&
-				input.method !== 'HEAD') {
+				input.method !== "GET" &&
+				input.method !== "HEAD") {
 				return input
 					.clone()
 					.text()
@@ -237,31 +252,32 @@
 		}
 
 		if (this.__studioLikesIsVideoRequest) {
-			this.addEventListener(
-				'load',
+			this.addEventListener("load",
 				function onLoad() {
 					try {
-						const payload = this.responseType === 'json'
+						const payload = this.responseType === "json"
 							? this.response
 							: JSON.parse(this.responseText);
 
 						ingestResponse(payload);
-					} catch { }
+					}
+					catch { }
 				},
-				{ once: true }
-			);
+				{
+					once: true
+				});
 		}
 
 		return nativeXhrSend.call(this, body);
 	};
 
 	function installStyles() {
-		if (document.getElementById('studio-likes-column-style')) {
+		if (document.getElementById("studio-likes-column-style")) {
 			return;
 		}
 
-		const style = document.createElement('style');
-		style.id = 'studio-likes-column-style';
+		const style = document.createElement("style");
+		style.id = "studio-likes-column-style";
 
 		style.textContent = `
             .studio-likes-header,
@@ -362,14 +378,14 @@
 	}
 
 	function ensureHeader() {
-		for (const header of document.querySelectorAll('ytcp-table-header#table-header')) {
-			if (header.querySelector('[data-studio-likes-header]')) {
+		for (const header of document.querySelectorAll("ytcp-table-header#table-header")) {
+			if (header.querySelector("[data-studio-likes-header]")) {
 				continue;
 			}
 
 			const commentsHeader = findDirectChildByClass(
 				header,
-				'tablecell-comments'
+				"tablecell-comments"
 			);
 
 			if (!commentsHeader) {
@@ -378,27 +394,27 @@
 
 			const likesHeader = commentsHeader.cloneNode(false);
 
-			likesHeader.dataset.studioLikesHeader = '1';
-			likesHeader.classList.remove('tablecell-comments');
-			likesHeader.classList.remove('right-align');
+			likesHeader.dataset.studioLikesHeader = "1";
+			likesHeader.classList.remove("tablecell-comments");
+			likesHeader.classList.remove("right-align");
 			likesHeader.classList.add(
-				'tablecell-likes',
-				'studio-likes-header'
+				"tablecell-likes",
+				"studio-likes-header"
 			);
 			applyColumnWidth(likesHeader);
 
-			const title = document.createElement('h3');
-			title.className = 'header-name style-scope ytcp-table-header';
+			const title = document.createElement("h3");
+			title.className = "header-name style-scope ytcp-table-header";
 
-			const text = document.createElement('span');
-			text.className = 'style-scope ytcp-table-header';
-			text.textContent = 'Likes (vs. dislikes)';
+			const text = document.createElement("span");
+			text.className = "style-scope ytcp-table-header";
+			text.textContent = "Likes (vs. dislikes)";
 
 			title.append(text);
 			likesHeader.append(title);
 
-			commentsHeader.classList.add('studio-likes-after-comments');
-			commentsHeader.insertAdjacentElement('afterend', likesHeader);
+			commentsHeader.classList.add("studio-likes-after-comments");
+			commentsHeader.insertAdjacentElement("afterend", likesHeader);
 		}
 	}
 
@@ -420,26 +436,26 @@
 	}
 
 	function ensureCell(row) {
-		let cell = row.querySelector('[data-studio-likes-cell]');
+		let cell = row.querySelector("[data-studio-likes-cell]");
 
 		if (cell) {
 			return cell;
 		}
 
-		const commentsCell = row.querySelector('.tablecell-comments');
+		const commentsCell = row.querySelector(".tablecell-comments");
 
 		if (!commentsCell) {
 			return null;
 		}
 
 		cell = commentsCell.cloneNode(false);
-		cell.dataset.studioLikesCell = '1';
-		cell.classList.remove('tablecell-comments');
-		cell.classList.remove('right-align');
-		cell.classList.add('tablecell-likes', 'studio-likes-cell');
+		cell.dataset.studioLikesCell = "1";
+		cell.classList.remove("tablecell-comments");
+		cell.classList.remove("right-align");
+		cell.classList.add("tablecell-likes", "studio-likes-cell");
 		applyColumnWidth(cell);
 
-		commentsCell.classList.add('studio-likes-after-comments');
+		commentsCell.classList.add("studio-likes-after-comments");
 		commentsCell.insertAdjacentElement('afterend', cell);
 
 		return cell;
@@ -454,14 +470,14 @@
 	function renderUnavailable(cell) {
 		clearCellState(cell);
 
-		const text = document.createElement('span');
-		text.className = 'studio-likes-singleline';
-		text.textContent = '—';
+		const text = document.createElement("span");
+		text.className = "studio-likes-singleline";
+		text.textContent = "—";
 
-		cell.title = 'Rating data was not returned by YouTube Studio';
+		cell.title = "Rating data was not returned by YouTube Studio";
 		cell.setAttribute(
-			'aria-label',
-			'Rating data was not returned by YouTube Studio'
+			"aria-label",
+			"Rating data was not returned by YouTube Studio"
 		);
 
 		cell.append(text);
@@ -470,38 +486,31 @@
 	function renderPublicOnly(cell, likes) {
 		clearCellState(cell);
 
-		const content = document.createElement('div');
-		content.className = 'studio-likes-content';
+		const content = document.createElement("div");
+		content.className = "studio-likes-content";
 
-		const likesText = document.createElement('div');
-		likesText.className = 'studio-likes-count';
+		const likesText = document.createElement("div");
+		likesText.className = "studio-likes-count";
 		likesText.textContent = `${compactNumber.format(likes)} like${likes === 1 ? '' : 's'}`;
 
-		const missingText = document.createElement('div');
-		missingText.className = 'studio-likes-empty';
-		missingText.textContent = '—';
-
+		const missingText = document.createElement("div");
+		missingText.className = "studio-likes-empty";
+		missingText.textContent = "—";
 		content.append(missingText, likesText);
 
-		cell.title = `${fullNumber.format(
-			likes
-		)} likes; dislike count was not returned`;
-
-		cell.setAttribute('aria-label',
-			`${fullNumber.format(likes)} likes. Dislike count was not returned`);
-
+		cell.title = `${fullNumber.format(likes)} likes; dislike count was not returned`;
+		cell.setAttribute('aria-label', `${fullNumber.format(likes)} likes. Dislike count was not returned`);
 		cell.append(content);
 	}
 
 	function renderNoRatings(cell) {
 		clearCellState(cell);
+		const text = document.createElement("span");
+		text.className = "studio-likes-singleline";
+		text.textContent = "—";
 
-		const text = document.createElement('span');
-		text.className = 'studio-likes-singleline';
-		text.textContent = '—';
-
-		cell.title = '0 likes · 0 dislikes';
-		cell.setAttribute('aria-label', '—');
+		cell.title = "0 likes · 0 dislikes";
+		cell.setAttribute("aria-label", "—");
 		cell.append(text);
 	}
 
@@ -515,31 +524,29 @@
 		}
 
 		const likePercent = (likes / total) * 100;
-		const content = document.createElement('div');
-		content.className = 'studio-likes-content';
+		const content = document.createElement("div");
+		content.className = "studio-likes-content";
 
-		const percentText = document.createElement('div');
-		percentText.className = 'studio-likes-percent';
+		const percentText = document.createElement("div");
+		percentText.className = "studio-likes-percent";
 		percentText.textContent = `${likePercent.toFixed(1)}%`;
 
-		const likesText = document.createElement('div');
-		likesText.className = 'studio-likes-count';
+		const likesText = document.createElement("div");
+		likesText.className = "studio-likes-count";
 		likesText.textContent = `${compactNumber.format(likes)} like${likes === 1 ? '' : 's'}`;
 
-		const bar = document.createElement('div');
-		bar.className = 'studio-likes-bar';
+		const bar = document.createElement("div");
+		bar.className = "studio-likes-bar";
 
-		const positivePart = document.createElement('span');
-		positivePart.className = 'studio-likes-bar-positive';
+		const positivePart = document.createElement("span");
+		positivePart.className = "studio-likes-bar-positive";
 		positivePart.style.width = `${Math.max(1, likePercent)}%`;
 
 		bar.append(positivePart);
 		content.append(percentText, likesText, bar);
 
-		cell.title = `${fullNumber.format(likes)} likes · ` +
-			`${fullNumber.format(dislikes)} dislikes`;
-
-		cell.setAttribute('aria-label',
+		cell.title = `${fullNumber.format(likes)} likes · ${fullNumber.format(dislikes)} dislikes`;
+		cell.setAttribute("aria-label",
 			`${likePercent.toFixed(1)}% likes. ` +
 			`${fullNumber.format(likes)} likes and ` +
 			`${fullNumber.format(dislikes)} dislikes`);
@@ -548,7 +555,10 @@
 	}
 
 	function updateCell(cell, videoId) {
-		const rating = videoId ? ratings.get(videoId) : null;
+		const rating = videoId
+			? ratings.get(videoId)
+			: null;
+
 		const signature = rating
 			? `${videoId}:${rating.source}:${rating.likes ?? ''}:${rating.dislikes ?? ''}`
 			: `${videoId ?? ''}:missing`;
@@ -564,7 +574,7 @@
 			return;
 		}
 
-		if (rating.source === 'private' &&
+		if (rating.source === "private" &&
 			rating.likes !== null &&
 			rating.dislikes !== null) {
 			renderPrivateMetrics(cell, rating.likes, rating.dislikes);
@@ -617,8 +627,8 @@
 			subtree: true,
 		});
 
-		document.addEventListener('yt-navigate-finish', scheduleRender, true);
-		document.addEventListener('yt-page-data-updated', scheduleRender, true);
+		document.addEventListener("yt-navigate-finish", scheduleRender, true);
+		document.addEventListener("yt-page-data-updated", scheduleRender, true);
 
 		scheduleRender();
 	}

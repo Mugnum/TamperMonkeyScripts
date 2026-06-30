@@ -1,13 +1,16 @@
 // ==UserScript==
-// @name         ChatGPT: Remove black background
-// @namespace    Mugnum.Scripts.ChatGPT
-// @version      1.2.0
-// @description  Replaces pure black background on OLED screens on ChatGPT
-// @author       Mugnum
-// @match        https://chatgpt.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=chatgpt.com
-// @run-at       document-start
-// @grant        GM_addStyle
+// @name			ChatGPT: Remove Black Background
+// @description		Replace ChatGPT pure black OLED background with a softer dark background
+// @version			1.3.0
+// @namespace		Mugnum.Scripts.ChatGpt.Styling
+// @author			Mugnum
+// @license			MIT License
+// @match			https://chatgpt.com/*
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=chatgpt.com
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/chatgpt-remove-black-background.user.js
+// @updateURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/chatgpt-remove-black-background.user.js
+// @run-at			document-start
+// @grant			GM_addStyle
 // ==/UserScript==
 
 (() => {

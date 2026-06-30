@@ -1,10 +1,15 @@
 // ==UserScript==
-// @name         Cohh vods: Auto scroll to player
-// @namespace    Mugnum.Scripts.Vods
-// @version      1.0.0
-// @description  Scrolls video player to bottom of screen
-// @match        https://vodchat.cohhilition.com/video/*
-// @grant        GM_registerMenuCommand
+// @name			Cohh vods: Auto scroll to player
+// @description		Scrolls video player to bottom of screen
+// @version			1.1.0
+// @namespace		Mugnum.Scripts.Vods.CohhScroll
+// @author			Mugnum
+// @license			MIT License
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=cohhilition.com
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/vods-cohh-autoscroll-to-player.user.js
+// @updateURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/vods-cohh-autoscroll-to-player.user.js
+// @match			https://vodchat.cohhilition.com/video/*
+// @grant			GM_registerMenuCommand
 // ==/UserScript==
 
 (function () {

@@ -1,8 +1,13 @@
 // ==UserScript==
 // @name			Twitch: VOD Chat Offset
-// @namespace		Mugnum.Scripts.Twitch.VodOffset
-// @version			1.0.0
 // @description		Adjust Twitch VOD chat replay offset
+// @version			1.1.0
+// @namespace		Mugnum.Scripts.Twitch.VodOffset
+// @author			Mugnum
+// @license			MIT License
+// @icon			https://www.google.com/s2/favicons?sz=64&domain=twitch.tv
+// @downloadURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/twitch-vod-chat-offset.user.js
+// @updateURL		https://raw.githubusercontent.com/Mugnum/TamperMonkeyScripts/main/Scripts/twitch-vod-chat-offset.user.js
 // @match			https://www.twitch.tv/videos/*
 // @match			https://www.twitch.tv/*/v/*
 // @run-at			document-start
@@ -13,84 +18,79 @@
 	"use strict";
 
 	/**
-     * Instructions:
+	 * Instructions:
 	 * Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video.
-     * Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
+	 * Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 	 */
 
 	let chatOffsetSeconds = 0;
-    let activeVideoID = null;
+	let activeVideoID = null;
 
-    const STORAGE_KEY = "Mugnum.TwitchVodChatOffset.lastVideoOffset";
+	const STORAGE_KEY = "Mugnum.TwitchVodChatOffset.lastVideoOffset";
 	const OPERATION_NAME = "VideoCommentsByOffsetOrCursor";
 	const originalFetch = window.fetch;
 
 	function readSavedOffset() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return null;
+		try {
+			const raw = localStorage.getItem(STORAGE_KEY);
 
-            const parsed = JSON.parse(raw);
+			if (!raw) {
+				return null;
+			}
 
-            if (
-                parsed &&
-                typeof parsed.videoID === "string" &&
-                typeof parsed.offset === "number" &&
-                Number.isFinite(parsed.offset)
-            ) {
-                return parsed;
-            }
-        } catch {}
+			const parsed = JSON.parse(raw);
 
-        return null;
-    }
+			if (parsed &&
+					typeof parsed.videoID === "string" &&
+					typeof parsed.offset === "number" &&
+					Number.isFinite(parsed.offset)) {
+				return parsed;
+			}
+		}
+		catch { }
 
-    function saveOffsetForVideo(videoID, offset) {
-        if (!videoID || !Number.isFinite(offset)) return;
+		return null;
+	}
 
-        if (offset === 0) {
-            localStorage.removeItem(STORAGE_KEY);
-            return;
-        }
+	function saveOffsetForVideo(videoID, offset) {
+		if (!videoID || !Number.isFinite(offset)) {
+			return;
+		}
 
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({
-                videoID,
-                offset
-            })
-        );
+		if (offset === 0) {
+			localStorage.removeItem(STORAGE_KEY);
+			return;
+		}
 
-        console.info(
-            "[Twitch VOD Chat Offset] saved offset",
-            offset,
-            "for videoID:",
-            videoID
-        );
-    }
+		localStorage.setItem(STORAGE_KEY, JSON.stringify({
+			videoID,
+			offset}));
 
-    function initializeOffsetForVideo(videoID) {
-        if (!videoID || activeVideoID === videoID) return;
+		console.info("[Twitch VOD Chat Offset] saved offset", offset,
+			"for videoID:", videoID);
+	}
 
-        activeVideoID = videoID;
+	function initializeOffsetForVideo(videoID) {
+		if (!videoID || activeVideoID === videoID) {
+			return;
+		}
 
-        const saved = readSavedOffset();
+		activeVideoID = videoID;
+		const saved = readSavedOffset();
 
-        if (saved?.videoID === videoID) {
-            chatOffsetSeconds = saved.offset;
-        } else {
-            chatOffsetSeconds = 0;
-        }
+		if (saved?.videoID === videoID) {
+			chatOffsetSeconds = saved.offset;
+		} else {
+			chatOffsetSeconds = 0;
+		}
 
-        console.info(
-            "[Twitch VOD Chat Offset] initialized",
-            "videoID:", videoID,
-            "offset:", chatOffsetSeconds
-        );
-    }
+		console.info("[Twitch VOD Chat Offset] initialized",
+			"videoID:", videoID,
+			"offset:", chatOffsetSeconds);
+	}
 
-    function isLikelyTwitchGqlUrl(input) {
-        const url = typeof input === "string"
+	function isLikelyTwitchGqlUrl(input) {
+		const url = typeof input === "string"
 			? input
 			: input instanceof Request
 				? input.url
@@ -99,16 +99,15 @@
 		return url.includes("gql.twitch.tv/gql") || url.endsWith("/gql");
 	}
 
-    function getRequestBodyText(input, init) {
-        return typeof init?.body === "string"
-            ? init.body
-            : null;
+	function getRequestBodyText(input, init) {
+		return typeof init?.body === "string"
+			? init.body
+			: null;
 	}
 
 	function patchRequestBody(bodyText) {
 		const parsed = JSON.parse(bodyText);
 		const ops = Array.isArray(parsed) ? parsed : [parsed];
-
 		let changed = false;
 
 		for (const op of ops) {
@@ -119,43 +118,45 @@
 			initializeOffsetForVideo(String(op.variables.videoID));
 
 			if (chatOffsetSeconds === 0 || !op?.variables || typeof op.variables.contentOffsetSeconds !== "number") {
-                continue;
-            }
+				continue;
+			}
 
-            const original = op.variables.contentOffsetSeconds;
-            const adjusted = Math.max(0, original - chatOffsetSeconds);
+			const original = op.variables.contentOffsetSeconds;
+			const adjusted = Math.max(0, original - chatOffsetSeconds);
 
-            op.variables.contentOffsetSeconds = adjusted;
-            changed = true;
+			op.variables.contentOffsetSeconds = adjusted;
+			changed = true;
 
-            console.debug(
-                "[Twitch VOD Chat Offset] request",
-                "videoID:", op.variables.videoID,
-                "original:", original,
-                "adjusted:", adjusted,
-                "offset:", chatOffsetSeconds
-            );
+			console.debug("[Twitch VOD Chat Offset] request",
+				"videoID:", op.variables.videoID,
+				"original:", original,
+				"adjusted:", adjusted,
+				"offset:", chatOffsetSeconds);
 		}
 
-		if (!changed) return null;
+		if (!changed) {
+			return null;
+		}
 
-		return JSON.stringify(Array.isArray(parsed) ? ops : ops[0]);
+		return JSON.stringify(Array.isArray(parsed)
+			? ops
+			: ops[0]);
 	}
 
 	function patchVideoCommentsResponseJson(data) {
-        if (chatOffsetSeconds === 0) {
-            return false;
-        }
+		if (chatOffsetSeconds === 0) {
+			return false;
+		}
 
-		const ops = Array.isArray(data) ? data : [data];
+		const ops = Array.isArray(data)
+			? data
+			: [data];
 
 		let changed = false;
 		let patchedCount = 0;
 
 		for (const op of ops) {
-			const operationName =
-				op?.extensions?.operationName ??
-				op?.operationName;
+			const operationName = op?.extensions?.operationName ?? op?.operationName;
 
 			if (operationName !== OPERATION_NAME) {
 				continue;
@@ -170,13 +171,9 @@
 			for (const edge of edges) {
 				const node = edge?.node;
 
-				if (
-					node &&
-					typeof node.contentOffsetSeconds === "number"
-				) {
+				if (node && typeof node.contentOffsetSeconds === "number") {
 					const original = node.contentOffsetSeconds;
 					const adjusted = Math.max(0, original + chatOffsetSeconds);
-
 					node.contentOffsetSeconds = adjusted;
 					changed = true;
 					patchedCount += 1;
@@ -185,12 +182,8 @@
 		}
 
 		if (changed) {
-			console.debug(
-				"[Twitch VOD Chat Offset] response patched messages:",
-				patchedCount,
-				"offset:",
-				chatOffsetSeconds
-			);
+			console.debug("[Twitch VOD Chat Offset] response patched messages:", patchedCount,
+				"offset:", chatOffsetSeconds);
 		}
 
 		return changed;
@@ -228,75 +221,59 @@
 	}
 
 	window.fetch = async function twitchVodChatOffsetFetch(input, init) {
-        try {
-            if (!isLikelyTwitchGqlUrl(input)) {
-                return originalFetch.apply(this, arguments);
-            }
+		try {
+			if (!isLikelyTwitchGqlUrl(input)) {
+				return originalFetch.apply(this, arguments);
+			}
 
-            const bodyText = getRequestBodyText(input, init);
+			const bodyText = getRequestBodyText(input, init);
 
-            if (typeof bodyText !== "string" ||
-                    !bodyText.includes(OPERATION_NAME)) {
-                return originalFetch.apply(this, arguments);
-            }
+			if (typeof bodyText !== "string" ||
+				!bodyText.includes(OPERATION_NAME)) {
+				return originalFetch.apply(this, arguments);
+			}
 
-            const patchedBody = patchRequestBody(bodyText);
+			const patchedBody = patchRequestBody(bodyText);
+			let response;
 
-            let response;
+			if (patchedBody) {
+				const patchedInit = { ...init, body: patchedBody };
+				response = await originalFetch.call(this, input, patchedInit);
+			} else {
+				response = await originalFetch.apply(this, arguments);
+			}
 
-            if (patchedBody) {
-                const patchedInit = { ...init, body: patchedBody };
-                response = await originalFetch.call(
-                    this,
-                    input,
-                    patchedInit
-                );
-            } else {
-                response = await originalFetch.apply(
-                    this,
-                    arguments
-                );
-            }
+			return await patchResponse(response);
+		} catch (err) {
+			console.warn("[Twitch VOD Chat Offset] patch failed:", err);
+			return originalFetch.apply(this, arguments);
+		}
+	};
 
-            return await patchResponse(response);
-        } catch (err) {
-            console.warn(
-                "[Twitch VOD Chat Offset] patch failed:",
-                err
-            );
+	window.twitchVodChatOffset = {
+		set(offset) {
+			const parsed = Number(offset);
 
-            return originalFetch.apply(this, arguments);
-        }
-    };
+			if (!Number.isFinite(parsed)) {
+				console.warn(`[Twitch VOD Chat Offset] invalid offset: ${offset}`);
+				return;
+			}
 
-    window.twitchVodChatOffset = {
-        set(offset) {
-            const parsed = Number(offset);
+			if (!activeVideoID) {
+				console.warn("[Twitch VOD Chat Offset] no active videoID yet; wait for VOD chat to load, then try again");
+				return;
+			}
 
-            if (!Number.isFinite(parsed)) {
-                console.warn("[Twitch VOD Chat Offset] invalid offset:", offset);
-                return;
-            }
+			saveOffsetForVideo(activeVideoID, parsed);
+			console.info("[Twitch VOD Chat Offset] saved offset. Reload page to apply from first chat request:",
+				{
+					videoID: activeVideoID,
+					offset: parsed
+				});
 
-            if (!activeVideoID) {
-                console.warn(
-                    "[Twitch VOD Chat Offset] no active videoID yet; wait for VOD chat to load, then try again"
-                );
-                return;
-            }
-
-            saveOffsetForVideo(activeVideoID, parsed);
-            console.info(
-                "[Twitch VOD Chat Offset] saved offset. Reload page to apply from first chat request:",
-                {
-                    videoID: activeVideoID,
-                    offset: parsed
-                }
-            );
-
-            location.reload();
-        }
-    };
+			location.reload();
+		}
+	};
 
 	console.info(`[Twitch VOD Chat Offset] loaded; offset defaults to ${chatOffsetSeconds}`);
 })();

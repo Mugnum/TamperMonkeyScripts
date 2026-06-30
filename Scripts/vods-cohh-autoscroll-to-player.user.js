@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name			Cohh vods: Auto scroll to player
+// @name			Cohh vods: Auto Scroll to Player
 // @description		Scrolls video player to bottom of screen
 // @version			1.1.0
 // @namespace		Mugnum.Scripts.Vods.CohhScroll

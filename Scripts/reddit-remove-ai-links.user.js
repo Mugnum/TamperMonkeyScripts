@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name			Reddit: Remove AI links
+// @name			Reddit: Remove AI Links
 // @description		Removes bullshit AI links from comments and reverts them to plain text
 // @version			1.1.0
 // @namespace		Mugnum.Scripts.Reddit

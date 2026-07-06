@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name			Vods: User Highlighter
 // @namespace		Mugnum.Scripts.Vods
-// @version			2.3.0
+// @version			2.4.0
 // @description		Highlight specific users in chat (moon2.tv + chatreplay.stream)
 // @author			Mugnum
 // @license			MIT License
@@ -71,11 +71,7 @@
 	function getHighlightStyle() {
 		if (IS_MOON2) {
 			return {
-				backgroundColor: "#3838385c",
-				paddingTop: "0px",
-				paddingBottom: "2px",
-				marginTop: "2px",
-				marginBottom: "1px"
+				backgroundColor: "#62626247"
 			};
 		}
 		if (IS_CHATREPLAY) {

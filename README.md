@@ -32,11 +32,26 @@ Provided as-is, none of them are going to be maintained.
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  
   Highlights specific users in chat on moon2.tv and chatreplay.stream.
 
+- [YouTube: Hide Controls on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-hide-controls.user.js)  
+  Hides player controls on "H" shortcut.
+
+- [YouTube: Hide Title Tooltip for Embed](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-hide-tooltip-for-embed.user.js)  
+  Removes video title popup when hovering over embedded video. Mostly relevant for Firefox.
+
+- [YouTube: Save Screenshot on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-save-screenshot.user.js)  
+  Press Ctrl+Shift+S to save screenshot of current video frame.
+
 - [YouTube: Set High Quality for Embed](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-auto-quality-for-embed.user.js)  
   Makes youtube embedded videos at higher resolution.
 
 - [YouTube: Disable Ctrl+Arrow Chapter Jump](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-remove-chapter-shortcut.user.js)  
   Removes shortcuts for jumping to next chapter on YouTube.
 
+- [YouTube Studio: Auto Show More](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-studio-auto-show-more.user.js)  
+  Automatically expands advanced settings when opening a video's edit page in YouTube Studio.
+
 - [YouTube Studio: Restore Likes/Dislikes Column](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-studio-restore-likes-column.user.js)  
   Restores the likes/dislikes column in YouTube Studio Content.
+
+- [YouTube: Unmute Embedded Videos](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-unmute-embed-videos.user.js)  
+  Automatically unmutes embedded YouTube videos on page load.

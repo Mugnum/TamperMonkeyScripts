@@ -12,6 +12,9 @@ Provided as-is, none of them are going to be maintained.
 - [ChatGPT: Remove Black Background](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/chatgpt-remove-black-background.user.js)  
   Replaces pure black background on OLED screens in ChatGPT.
 
+- [Cohh vods: Auto Scroll to Player](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-cohh-autoscroll-to-player.user.js)  
+  Scrolls video player to bottom of screen on cohhilition.com.
+
 - [Reddit: Remove AI Links](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/reddit-remove-ai-links.user.js)  
   Removes bullshit AI links from comments and reverts them to plain text.
 
@@ -25,9 +28,6 @@ Provided as-is, none of them are going to be maintained.
   Adjusts Twitch VOD chat replay offset.
   
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
-
-- [Cohh vods: Auto Scroll to Player](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-cohh-autoscroll-to-player.user.js)  
-  Scrolls video player to bottom of screen on cohhilition.com.
 
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  
   Highlights specific users in chat on moon2.tv and chatreplay.stream.

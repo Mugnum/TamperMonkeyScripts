@@ -21,6 +21,9 @@ Provided as-is, none of them are going to be maintained.
 - [Twitch: Hide Controls on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-hide-controls.user.js)  
   Hides player controls on "H" shortcut.
 
+- [Twitch: Remove Upsell Announcements](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-remove-announcements.user.js)  
+  Removes announcements from footer of Twitch page.
+
 - [Twitch: Remove Weekly Rewards Popup](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-hide-weekly-rewards.user.js)  
   Removes the "You made Weekly Rewards progress!" message.
 

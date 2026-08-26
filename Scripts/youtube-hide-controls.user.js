@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name			YouTube: Hide Controls on Hotkey
 // @description		Hides player controls on "H" shortcut
-// @version			1.4.0
+// @version			1.5.3
 // @namespace		Mugnum.Scripts.YouTube.TogglePlayerUI
 // @author			Mugnum
 // @license			MIT License
@@ -29,6 +29,7 @@
 		.html5-video-player.${HIDDEN_CLASS} .ytp-speedmaster-overlay,
 		.html5-video-player.${HIDDEN_CLASS} .ytp-bezel,
 		.html5-video-player.${HIDDEN_CLASS} .ytp-pause-overlay,
+        .html5-video-player.${HIDDEN_CLASS} .ytp-fullscreen-grid-buttons-container,
 		.html5-video-player.${HIDDEN_CLASS} .ytp-touch-response {
 			display: none !important;
 			visibility: hidden !important;
@@ -57,12 +58,12 @@
 	window.addEventListener("keydown",
 		event => {
 			if (event.code !== KEYBOARD_SHORTCUT ||
-					event.repeat ||
-					event.ctrlKey ||
-					event.altKey ||
-					event.metaKey ||
-					event.shiftKey ||
-					isEditable(event.target)) {
+				event.repeat ||
+				event.ctrlKey ||
+				event.altKey ||
+				event.metaKey ||
+				event.shiftKey ||
+				isEditable(event.target)) {
 				return;
 			}
 

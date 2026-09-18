@@ -54,7 +54,7 @@ Provided as-is, none of them are going to be maintained.
   Automatically expands advanced settings when opening a video's edit page in YouTube Studio.
 
 - [YouTube Studio: Restore Likes/Dislikes Column](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-studio-restore-likes-column.user.js)  
-  Restores the likes/dislikes column in YouTube Studio Content.
+  Restores the likes/dislikes column in YouTube Studio Content.  
   Currently broken.
 
 - [YouTube: Unmute Embedded Videos](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-unmute-embed-videos.user.js)  

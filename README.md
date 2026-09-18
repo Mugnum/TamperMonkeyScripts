@@ -55,6 +55,7 @@ Provided as-is, none of them are going to be maintained.
 
 - [YouTube Studio: Restore Likes/Dislikes Column](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-studio-restore-likes-column.user.js)  
   Restores the likes/dislikes column in YouTube Studio Content.
+  Currently broken.
 
 - [YouTube: Unmute Embedded Videos](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-unmute-embed-videos.user.js)  
   Automatically unmutes embedded YouTube videos on page load.

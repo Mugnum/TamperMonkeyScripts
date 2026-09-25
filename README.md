@@ -11,6 +11,7 @@ Provided as-is, none of them are going to be maintained.
 ### List of scripts (for search indexing)
 - [ChatGPT: Remove Black Background](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/chatgpt-remove-black-background.user.js)  
   Replaces pure black background on OLED screens in ChatGPT.
+  Deprecated, as you can now customize appearance in settings.
 
 - [Cohh vods: Auto Scroll to Player](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-cohh-autoscroll-to-player.user.js)  
   Scrolls video player to bottom of screen on cohhilition.com.

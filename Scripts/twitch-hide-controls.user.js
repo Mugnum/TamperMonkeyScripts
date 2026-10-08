@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name			Twitch: Hide Controls on Hotkey
 // @description		Hides player controls on "H" shortcut
-// @version			1.1.0
+// @version			1.2.0
 // @namespace		Mugnum.Scripts.Twitch.ToggleControls
 // @author			Mugnum
 // @license			MIT License
@@ -21,6 +21,7 @@
 	const css = `
 		[data-a-target="player-controls"],
 		.player-controls,
+		.right-column__toggle-visibility,
 		.top-bar,
 		.player-overlay-background,
 		[data-a-target="player-overlay-click-handler"],
@@ -29,7 +30,7 @@
 			visibility: hidden !important;
 			pointer-events: none !important;
 		}
-    `;
+	`;
 
 	function isEditable(el) {
 		if (!(el instanceof HTMLElement)) {

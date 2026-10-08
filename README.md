@@ -13,7 +13,7 @@ Provided as-is, none of them are going to be maintained.
   Scrolls video player to bottom of screen on cohhilition.com.
 
 - [Image Hosting: Auto Fullscreen](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/image-hosting-auto-fullscreen.user.js)  
-  Automatically opens image in fullscreen on image hosting websites. Respects websites' network limits (there's a reason they prefer previews) by queuing each operation to browser-wide worker, which enlarges each image on a 3.5 sec delay. Script has a domain/resolver factory set in place to support multiple sites down the line.  
+  Automatically opens image in fullscreen on image hosting websites. Respects websites' network limits (there's a reason they prefer previews) by queuing each operation to browser-wide worker, which enlarges images in each tab on a 3.5 sec delay. Script has a domain/resolver factory set in place to support multiple sites down the line.  
   For now only `FastPic` is supported. 
 
 - [Reddit: Remove AI Links](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/reddit-remove-ai-links.user.js)  

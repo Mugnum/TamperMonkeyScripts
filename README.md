@@ -9,12 +9,12 @@ Provided as-is, none of them are going to be maintained.
 - TM will automatically suggest to install it.
 
 ### List of scripts (for search indexing)
-- [ChatGPT: Remove Black Background](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/chatgpt-remove-black-background.user.js)  
-  Replaces pure black background on OLED screens in ChatGPT.  
-  Deprecated, as you can now customize appearance in settings.
-
 - [Cohh vods: Auto Scroll to Player](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-cohh-autoscroll-to-player.user.js)  
   Scrolls video player to bottom of screen on cohhilition.com.
+
+- [Image Hosting: Auto Fullscreen](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/image-hosting-auto-fullscreen.user.js)  
+  Automatically opens image in fullscreen on image hosting websites. Respects websites' network limits (there's a reason they prefer previews) by queuing each operation to browser-wide worker, which enlarges each image on a 3.5 sec delay.  
+  For now only `FastPic` is supported. Script has a domain/resolver factory set in place to support multiple sites down the line.
 
 - [Reddit: Remove AI Links](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/reddit-remove-ai-links.user.js)  
   Removes bullshit AI links from comments and reverts them to plain text.
@@ -29,8 +29,7 @@ Provided as-is, none of them are going to be maintained.
   Removes the "You made Weekly Rewards progress!" message.
 
 - [Twitch: VOD Chat Offset](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-vod-chat-offset.user.js)  
-  Adjusts Twitch VOD chat replay offset.
-  
+  Adjusts Twitch VOD chat replay offset.    
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  
@@ -41,6 +40,9 @@ Provided as-is, none of them are going to be maintained.
 
 - [YouTube: Hide Title Tooltip for Embed](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-hide-tooltip-for-embed.user.js)  
   Removes video title popup when hovering over embedded video. Mostly relevant for Firefox.
+
+- [YouTube: Remove "New" Video Tag](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-remove-new-video-tag.user.js)  
+  Removes "New" label on video thumbnails from recommendations.
 
 - [YouTube: Save Screenshot on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-save-screenshot.user.js)  
   Press Ctrl+Shift+S to save screenshot of current video frame.

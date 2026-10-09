@@ -42,7 +42,7 @@ Provided as-is, none of them are going to be maintained.
   Removes video title popup when hovering over embedded video. Mostly relevant for Firefox.
 
 - [YouTube: Remove "New" Video Tag](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-remove-new-video-tag.user.js)  
-  Removes "New" label on video thumbnails from recommendations.
+  Removes "New" label on video thumbnails in recommendations.
 
 - [YouTube: Save Screenshot on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/youtube-save-screenshot.user.js)  
   Press Ctrl+Shift+S to save screenshot of current video frame.

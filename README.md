@@ -31,7 +31,8 @@ Provided as-is, none of them are going to be maintained.
   Removes the "You made Weekly Rewards progress!" message.
 
 - [Twitch: VOD Chat Offset](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-vod-chat-offset.user.js)  
-  Adjusts Twitch VOD chat replay offset.    
+  Adjusts Twitch VOD chat replay offset.
+
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  

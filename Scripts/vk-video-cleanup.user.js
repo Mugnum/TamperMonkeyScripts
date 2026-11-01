@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name			VK: Video Playlist Cleanup
 // @description		Deletes dead videos from VK playlists (deleted, private or DMCA'd)
-// @version			1.2.2
+// @version			1.3.0
 // @namespace		Mugnum.Scripts.VkVideo.Cleanup
 // @author			Mugnum
 // @license			MIT License
@@ -27,7 +27,7 @@
 	const VK_ACCESS_TOKEN = "vk1.a.<token>";	// Personalized VK login token. Don't share it with anyone.
 	const YOUTUBE_API_KEY = "<api-key>";		// YouTube API key with basic permissions.
 	const OK_REQUEST_DELAY_MS = 1400;			// OK.ru embedded videos scan delay (rate limiting).
-	const NOTIFY_AFTER_MS = 180_000;			// Shows completion notification for long executions. 0 disables notifications.
+	const DELETE_NOTIFY_AFTER_MS = 40_000;		// Notifies after a long deletion when this tab is hidden. 0 disables deletion notifications.
 	const YOUTUBE_BATCH_SIZE = 50;
 	const VK_BATCH_SIZE = 200;
 	const DEBUG = false;
@@ -43,7 +43,17 @@
 	const PANEL_SELECTOR = "[data-testid=\"video_playlist_side_block\"]";
 	const BUTTON_CLASS = "tm-vk-video-cleanup-button";
 	const NOTIFICATION_STORAGE_KEY = "tm-vk-video-cleanup-completion";
+	const FOCUS_REQUEST_TIMEOUT_MS = 3000;
+	const pendingFocusRequests = new Map();
+	let coordinationChannel = null;
 	let activeSession = null;
+
+	class RequestTimeoutError extends Error {
+		constructor(service) {
+			super(`${service}: запрос не завершился за 20 секунд. Обработка остановлена.`);
+			this.name = "RequestTimeoutError";
+		}
+	}
 
 	function debugLog(event, details) {
 		if (!DEBUG) {
@@ -129,34 +139,94 @@
 		if (!Number.isSafeInteger(OK_REQUEST_DELAY_MS) || OK_REQUEST_DELAY_MS < 0) {
 			throw new Error("OK_REQUEST_DELAY_MS должен быть целым неотрицательным числом мс.");
 		}
-		if (!Number.isSafeInteger(NOTIFY_AFTER_MS) || NOTIFY_AFTER_MS < 0) {
-			throw new Error("NOTIFY_AFTER_MS должен быть целым неотрицательным числом мс.");
+		if (!Number.isSafeInteger(DELETE_NOTIFY_AFTER_MS) || DELETE_NOTIFY_AFTER_MS < 0) {
+			throw new Error("DELETE_NOTIFY_AFTER_MS должен быть целым неотрицательным числом мс.");
 		}
+	}
+
+	function focusThisTab() {
+		window.focus();
+	}
+
+	function openCoordinationChannel() {
+		if (coordinationChannel) {
+			return;
+		}
+		try {
+			coordinationChannel = new BroadcastChannel(LOCK_NAME);
+			coordinationChannel.onmessage = ({ data }) => {
+				if (!data || typeof data.requestId !== "string") {
+					return;
+				}
+				if (data.type === "focus-active" && activeSession?.ownsLock && !activeSession.controller.signal.aborted) {
+					let focused = false;
+					try {
+						focusThisTab();
+						focused = true;
+					} catch {
+						debugLog("Active tab could not be focused", {});
+					}
+					coordinationChannel.postMessage({ type: "focus-result", requestId: data.requestId, focused });
+				} else if (data.type === "focus-result") {
+					pendingFocusRequests.get(data.requestId)?.(data.focused === true);
+				}
+			};
+		} catch {
+			coordinationChannel = null;
+			debugLog("Tab coordination unavailable", {});
+		}
+	}
+
+	function closeCoordinationChannel() {
+		coordinationChannel?.close();
+		coordinationChannel = null;
+		for (const finish of pendingFocusRequests.values()) {
+			finish(false);
+		}
+	}
+
+	function requestActiveProcessingFocus() {
+		if (!coordinationChannel) {
+			return Promise.resolve(false);
+		}
+		return new Promise(resolve => {
+			const requestId = crypto.randomUUID();
+			const finish = focused => {
+				clearTimeout(timer);
+				pendingFocusRequests.delete(requestId);
+				resolve(focused);
+			};
+			const timer = setTimeout(() => finish(false), FOCUS_REQUEST_TIMEOUT_MS);
+			pendingFocusRequests.set(requestId, finish);
+			try {
+				// Only the tab holding the Web Lock responds. No URLs or credentials cross the channel.
+				coordinationChannel.postMessage({ type: "focus-active", requestId });
+			} catch {
+				finish(false);
+			}
+		});
 	}
 
 	function showCompletionNotification(text) {
 		try {
 			GM_notification({
 				title: "Очистка плейлиста", text, timeout: 0, highlight: false,
-				onclick: () => window.focus()
+				onclick: focusThisTab
 			});
 		} catch {
 			debugLog("Notification unavailable", {});
 		}
 	}
 
-	function isLongOperation(session) {
-		return NOTIFY_AFTER_MS > 0 && Date.now() - session.phaseStartedAt >= NOTIFY_AFTER_MS;
-	}
-
-	function notifyLongOperation(session, text) {
-		if (isLongOperation(session)) {
-			showCompletionNotification(text);
+	function notifyScanCompleted(session) {
+		if (document.visibilityState === "hidden") {
+			const count = session.candidates.length;
+			showCompletionNotification(count ? `Нажмите, чтобы подтвердить удаление (${count}) видео.` : "Нет видео подлежащих удалению");
 		}
 	}
 
 	function reloadAfterDeletion(session) {
-		if (isLongOperation(session)) {
+		if (document.visibilityState === "hidden" && DELETE_NOTIFY_AFTER_MS > 0 && Date.now() - session.deletionStartedAt > DELETE_NOTIFY_AFTER_MS) {
 			try {
 				// Only the notice survives reload in this tab, never credentials or scan data.
 				sessionStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify({ playlist: session.playlist.key, createdAt: Date.now() }));
@@ -174,8 +244,8 @@
 			sessionStorage.removeItem(NOTIFICATION_STORAGE_KEY);
 			const notice = stored ? JSON.parse(stored) : null;
 			const age = Date.now() - notice?.createdAt;
-			if (NOTIFY_AFTER_MS > 0 && notice?.playlist === getPlaylist()?.key && age >= 0 && age < 300_000) {
-				showCompletionNotification("Очистка плейлиста завершена.");
+			if (DELETE_NOTIFY_AFTER_MS > 0 && document.visibilityState === "hidden" && notice?.playlist === getPlaylist()?.key && age >= 0 && age < 300_000) {
+				showCompletionNotification("Удаление завершено.");
 			}
 		} catch {
 			debugLog("Saved completion notice unavailable", {});
@@ -266,7 +336,7 @@
 				request?.abort();
 			};
 			const timeout = () => {
-				finish(new Error(`${service}: запрос не завершился за 20 секунд. Обработка остановлена.`));
+				finish(new RequestTimeoutError(service));
 				request?.abort();
 			};
 
@@ -373,20 +443,37 @@
 	}
 
 	async function callYoutube(ids, session) {
-		for (let attempt = 0; ; attempt++) {
+		let timeoutRetries = 0;
+		let rateLimitRetries = 0;
+		for (;;) {
 			await paceRequest("YouTube", false, session);
 			const query = new URLSearchParams({ part: "status", id: ids.join(",") });
-			const response = await requestJson({
-				method: "GET",
-				url: `https://www.googleapis.com/youtube/v3/videos?${query}`,
-				headers: { "x-goog-api-key": YOUTUBE_API_KEY }
-			}, "YouTube", session);
+			let response;
+			try {
+				response = await requestJson({
+					method: "GET",
+					url: `https://www.googleapis.com/youtube/v3/videos?${query}`,
+					headers: { "x-goog-api-key": YOUTUBE_API_KEY }
+				}, "YouTube", session);
+			} catch (error) {
+				checkSession(session);
+				if (!(error instanceof RequestTimeoutError) || timeoutRetries >= 1) {
+					throw error;
+				}
+				timeoutRetries++;
+				debugLog("YouTube timeout retry", { ids, retry: timeoutRetries });
+				session.ui.notice("YouTube не ответил. Повторная попытка...");
+				continue;
+			}
 			checkSession(session);
+			if (timeoutRetries) {
+				session.ui.notice("");
+			}
 			const error = response.body?.error;
 			const reasons = Array.isArray(error?.errors) ? error.errors.map(item => item.reason) : [];
 
 			if (response.status === 429 || reasons.some(reason => ["rateLimitExceeded", "userRateLimitExceeded"].includes(reason))) {
-				await waitForRateLimit("YouTube", response, attempt, session);
+				await waitForRateLimit("YouTube", response, rateLimitRetries++, session);
 				continue;
 			}
 			if (error || response.status < 200 || response.status >= 300) {
@@ -868,6 +955,7 @@
 		}
 
 		session.deletionStarted = true;
+		session.deletionStartedAt = Date.now();
 		for (let index = 0; index < selected.length; index++) {
 			checkSession(session);
 			const { video } = selected[index];
@@ -904,7 +992,7 @@
 		return `Удалено видео: ${session.deletedOwned + session.removed}.`;
 	}
 
-	async function withExclusiveLock(callback, onBusy) {
+	async function withExclusiveLock(callback, onBusy, session) {
 		if (!navigator.locks?.request) {
 			throw new Error("Браузер не предоставляет блокировку вкладок. Обновите Chrome или Firefox и проверьте доступ к Web Locks.");
 		}
@@ -915,7 +1003,12 @@
 				onBusy();
 				return;
 			}
-			return callback();
+			session.ownsLock = true;
+			try {
+				return await callback();
+			} finally {
+				session.ownsLock = false;
+			}
 		});
 	}
 
@@ -928,17 +1021,16 @@
 
 				if (!session.candidates.length) {
 					session.ui.finish("Не найдено видео, подлежащих удалению");
-					notifyLongOperation(session, "Не найдено видео, подлежащих удалению.");
+					notifyScanCompleted(session);
 					return;
 				}
 
-				notifyLongOperation(session, "Проверка завершена. Можно выбрать видео для удаления.");
+				notifyScanCompleted(session);
 				const selected = await session.ui.review(session.candidates, session.controller.signal);
 				checkSession(session);
-				session.phaseStartedAt = Date.now();
 				await deleteSelected(selected, session);
 				reloadAfterDeletion(session);
-			}, () => session.ui.finish("В другой вкладке уже запущена очистка плейлиста. Завершите или отмените её и повторите попытку."));
+			}, () => session.ui.showBusy(), session);
 		} catch (error) {
 			const cancelled = session.controller.signal.aborted && session.controller.signal.reason?.name === "AbortError";
 			debugLog("Processing stopped", { cancelled, message: error.message, removed: session.removed, deletedOwned: session.deletedOwned });
@@ -949,10 +1041,6 @@
 			}
 
 			session.ui.finish(message, !cancelled);
-
-			if (!cancelled) {
-				notifyLongOperation(session, "Обработка остановлена. Откройте вкладку, чтобы прочитать сообщение.");
-			}
 		} finally {
 			session.controller.abort();
 			session.candidates.length = 0;
@@ -987,6 +1075,8 @@
 			this.status = createElement("p", "Подготовка...");
 			this.status.setAttribute("role", "status");
 			this.bar = createElement("progress");
+			this.bar.max = 1;
+			this.bar.value = 0;
 			this.bar.setAttribute("aria-label", "Прогресс обработки");
 			this.notification = createElement("p", "", "tm-vk-cleanup-notice");
 			this.notification.setAttribute("role", "status");
@@ -1025,12 +1115,8 @@
 			this.status.textContent = text;
 			this.bar.hidden = false;
 
-			if (total !== null) {
-				this.bar.max = Math.max(1, total);
-				this.bar.value = done;
-			} else {
-				this.bar.removeAttribute("value");
-			}
+			this.bar.max = Math.max(1, total ?? 1);
+			this.bar.value = total === null ? 0 : done;
 		}
 
 		notice(text) {
@@ -1114,6 +1200,28 @@
 			ok.focus();
 		}
 
+		showBusy() {
+			this.finish("Обработка уже запущена: ");
+			const link = createElement("a", "перейти");
+			link.href = "#";
+			let pending = false;
+			link.addEventListener("click", async event => {
+				event.preventDefault();
+				if (pending) {
+					return;
+				}
+				pending = true;
+				link.setAttribute("aria-busy", "true");
+				const focused = await requestActiveProcessingFocus().catch(() => false);
+				if (focused) {
+					this.close();
+				} else {
+					this.finish("Не удалось перейти к активной обработке. Вернитесь к ней вручную.");
+				}
+			});
+			this.status.append(link, ".");
+		}
+
 		close() {
 			this.dialog.close();
 			this.dialog.remove();
@@ -1135,7 +1243,7 @@
 		const controller = new AbortController();
 		const ui = new CleanupDialog(controller);
 		activeSession = {
-			playlist, controller, ui, userId: null, phaseStartedAt: Date.now(),
+			playlist, controller, ui, userId: null, ownsLock: false,
 			candidates: [], seen: new Set(), youtubeCache: new Map(),
 			total: null, scanned: 0, completed: 0, skipped: 0, removed: 0, deletedOwned: 0,
 			writeRequests: 0, lastRequests: {}, deletionStarted: false
@@ -1193,6 +1301,7 @@
 			.tm-vk-cleanup-dialog::backdrop { background: #000a; }
 			.tm-vk-cleanup-dialog h2 { margin: 0 0 16px; color: #eee !important; font-size: 21px; overflow-wrap: anywhere; }
 			.tm-vk-cleanup-dialog p { white-space: pre-wrap; overflow-wrap: anywhere; }
+			.tm-vk-cleanup-dialog a { color: #80baff; text-decoration: underline; }
 			.tm-vk-cleanup-dialog progress { display: block; width: 100%; min-inline-size: 0; height: 22px; accent-color: #4799eb; }
 			.tm-vk-cleanup-dialog [hidden] { display: none !important; }
 			.tm-vk-cleanup-notice:empty { display: none; }
@@ -1215,6 +1324,7 @@
 	}
 
 	installStyles();
+	openCoordinationChannel();
 	restoreCompletionNotification();
 	debugLog("Script initialized", { playlist: getPlaylist()?.key ?? null });
 	mountButtons();
@@ -1237,11 +1347,13 @@
 	window.addEventListener("pagehide", () => {
 		activeSession?.controller.abort();
 		activeSession?.ui.close();
+		closeCoordinationChannel();
 		observer.disconnect();
 		clearInterval(navigationTimer);
 	});
 	window.addEventListener("pageshow", event => {
 		if (event.persisted) {
+			openCoordinationChannel();
 			observer.observe(document.body, { childList: true, subtree: true });
 			navigationTimer = setInterval(mountButtons, 1000);
 			mountButtons();

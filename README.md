@@ -13,7 +13,9 @@ Provided as-is, none of them are going to be maintained.
   Scrolls video player to bottom of screen on cohhilition.com.
 
 - [Image Hosting: Auto Fullscreen](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/image-hosting-auto-fullscreen.user.js)  
-  Automatically opens image in fullscreen on image hosting websites. Respects websites' network limits (there's a reason they prefer previews) by queuing each operation to browser-wide worker, which enlarges images in each tab on a 3.5 sec delay. Use at own risk, you probably will get rate limited; I honestly ended up not using it myself.  
+  Automatically opens image in fullscreen on image hosting websites.
+
+  Respects websites' network limits (there's a reason they prefer previews) by queuing each operation to browser-wide worker, which enlarges images in each tab on a 3.5 sec delay. Use at own risk, you probably will get rate limited; I honestly ended up not using it myself.  
   For now only `FastPic` is supported.
 
 - [Reddit: Remove AI Links](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/reddit-remove-ai-links.user.js)  
@@ -32,7 +34,8 @@ Provided as-is, none of them are going to be maintained.
   Removes the "You made Weekly Rewards progress!" message.
 
 - [Twitch: VOD Chat Offset](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-vod-chat-offset.user.js)  
-  Adjusts Twitch VOD chat replay offset.    
+  Adjusts Twitch VOD chat replay offset.
+
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
 
 - [VK: Video Playlist Cleanup](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vk-video-cleanup.user.js)  

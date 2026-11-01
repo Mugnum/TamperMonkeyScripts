@@ -19,6 +19,9 @@ Provided as-is, none of them are going to be maintained.
 - [Reddit: Remove AI Links](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/reddit-remove-ai-links.user.js)  
   Removes bullshit AI links from comments and reverts them to plain text.
 
+- [Twitch: FFZ Transparent Fullscreen Chat](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-ffz-transparent-fschat.user.js)  
+  Frankerfacez FS Chat addon: fixes transparency and hides chat's scrollbar until hovered.
+
 - [Twitch: Hide Controls on Hotkey](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-hide-controls.user.js)  
   Hides player controls on "H" shortcut.
 
@@ -31,6 +34,10 @@ Provided as-is, none of them are going to be maintained.
 - [Twitch: VOD Chat Offset](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/twitch-vod-chat-offset.user.js)  
   Adjusts Twitch VOD chat replay offset.    
   Use `twitchVodChatOffset.set(-20)` in console and reload page to apply offset to current video. Will apply only to that VOD, saved value will persist across multiple VODs until another explicit `set` is called.
+
+- [VK: Video Playlist Cleanup](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vk-video-cleanup.user.js)  
+  Deletes dead videos from VK playlists (deleted, private or DMCA'd). Checks YouTube embeds, including through jank OK.ru embeds.  
+  Requires you to bring your own YouTube API key and VK OAuth token.
 
 - [Vods: User Highlighter](https://github.com/Mugnum/TamperMonkeyScripts/blob/main/Scripts/vods-user-highlighter.user.js)  
   Highlights specific users in chat on moon2.tv and chatreplay.stream.

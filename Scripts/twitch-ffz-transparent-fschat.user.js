@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name			Twitch: FFZ Transparent Fullscreen Chat
 // @description		FrankerFaceZ - FS Chat addon: fixes chat transparency and hides scrollbar until hovered
-// @version			1.2.2
+// @version			1.2.3
 // @namespace		Mugnum.Scripts.Twitch.FfzTransparentFullscreenChat
 // @author			Mugnum
 // @license			MIT License
@@ -36,9 +36,9 @@
 			background-color: ${BACKGROUND_COLOR} !important;
 		}
 
-		/* Hide FFZ's overlay border without changing its dimensions. */
+		/* Hide chat's overlay border. */
 		html body .ffz--fschat.ffz--fschat > .channel-root__right-column > div {
-			border-color: transparent !important;
+			border: none !important;
 		}
 
 		/* Hide native scrollbars without changing the chat's available width. */
